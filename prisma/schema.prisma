@@ -1,0 +1,107 @@
+// Prisma Schema for SQLite in Development
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id            Int            @id @default(autoincrement())
+  name          String
+  email         String         @unique
+  passwordHash  String
+  pincode       String         @default("641001")
+  phone         String         @default("+91 98765 43210")
+  avatar        String?
+  role          String         @default("customer")
+  sparksBalance Int            @default(680)
+  createdAt     DateTime       @default(now())
+  updatedAt     DateTime       @updatedAt
+  orders        Order[]
+  notifications Notification[]
+  cartItems     CartItem[]
+}
+
+model Category {
+  id         String    @id
+  name       String
+  iconName   String?
+  iconFamily String?
+  bgColor    String?
+  badge      String?
+  products   Product[]
+}
+
+model Banner {
+  id             String   @id
+  title          String
+  subtitle       String?
+  tag            String?
+  code           String?
+  bannerImageUrl String
+  bgColor        String   @default("#FF6B8B")
+  iconName       String   @default("sparkles")
+  createdAt      DateTime @default(now())
+}
+
+model Product {
+  id             String     @id
+  name           String
+  category       String
+  categoryRel    Category?  @relation(fields: [category], references: [id], onDelete: Cascade)
+  price          Float
+  originalPrice  Float
+  rating         Float      @default(4.5)
+  reviewsCount   Int        @default(0)
+  imageUrl       String
+  isAssured      Boolean    @default(true)
+  discount       String?    @default("20% OFF")
+  ageGroup       String     @default("2-5 Yrs")
+  isDealOfDay    Boolean    @default(false)
+  freeDelivery   Boolean    @default(true)
+  specifications String?
+  createdAt      DateTime   @default(now())
+  cartItems      CartItem[]
+}
+
+model CartItem {
+  id        Int      @id @default(autoincrement())
+  userId    Int
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  productId String
+  product   Product  @relation(fields: [productId], references: [id], onDelete: Cascade)
+  quantity  Int      @default(1)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@unique([userId, productId])
+}
+
+model Order {
+  id             String   @id
+  userId         Int?
+  user           User?    @relation(fields: [userId], references: [id], onDelete: SetNull)
+  customerName   String
+  address        String
+  itemsJson      String   @default("[]")
+  totalAmount    Float
+  paymentMethod  String   @default("UPI / Card")
+  status         String   @default("Confirmed")
+  createdAt      DateTime @default(now())
+}
+
+model Notification {
+  id        Int      @id @default(autoincrement())
+  userId    Int?
+  user      User?    @relation(fields: [userId], references: [id], onDelete: Cascade)
+  title     String
+  message   String
+  type      String   @default("offer")
+  isRead    Boolean  @default(false)
+  time      String   @default("Just now")
+  createdAt DateTime @default(now())
+}
