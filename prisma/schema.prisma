@@ -105,3 +105,31 @@ model Notification {
   time      String   @default("Just now")
   createdAt DateTime @default(now())
 }
+
+// Persistent Admin Activity Log - stores all cart, order, payment and system events
+model ActivityLog {
+  id        Int      @id @default(autoincrement())
+  type      String   @default("INFO")     // INFO | SUCCESS | WARN | ERROR
+  action    String                         // e.g. "Order Placed", "Cart Updated"
+  category  String   @default("system")   // cart | order | payment | user | product | system
+  details   String                         // human-readable event detail
+  actor     String   @default("System")   // who triggered: "Admin", "Customer: Madhumathi"
+  userId    Int?                           // optional link to user
+  orderId   String?                        // optional link to order
+  ipAddress String?
+  createdAt DateTime @default(now())
+}
+
+// Payment Audit Log - every payment attempt stored here
+model PaymentLog {
+  id            Int      @id @default(autoincrement())
+  orderId       String
+  userId        Int?
+  customerName  String
+  amount        Float
+  paymentMethod String                          // UPI | Card | COD | NetBanking
+  status        String   @default("Pending")   // Pending | Success | Failed | Refunded
+  transactionId String?
+  notes         String?
+  createdAt     DateTime @default(now())
+}

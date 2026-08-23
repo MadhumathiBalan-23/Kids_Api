@@ -3,6 +3,7 @@ const cors = require("cors");
 const path = require("path");
 const logger = require("./middleware/logger");
 const errorHandler = require("./middleware/errorHandler");
+const { runMigrations } = require("./utils/migrate");
 
 // Import Route Handlers
 const authRoutes = require("./routes/auth.routes");
@@ -14,6 +15,7 @@ const orderRoutes = require("./routes/order.routes");
 const profileRoutes = require("./routes/profile.routes");
 const notificationRoutes = require("./routes/notification.routes");
 const uploadRoutes = require("./routes/upload.routes");
+const logRoutes = require("./routes/log.routes");
 
 const app = express();
 
@@ -48,6 +50,10 @@ app.use("/api/orders", orderRoutes);
 app.use("/api/profile", profileRoutes);
 app.use("/api/notifications", notificationRoutes);
 app.use("/api/upload", uploadRoutes);
+app.use("/api/logs", logRoutes);
+
+// Auto-create ActivityLog & PaymentLog tables on startup
+runMigrations();
 
 // 404 Not Found Handler
 

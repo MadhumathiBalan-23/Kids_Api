@@ -1,5 +1,6 @@
 const prisma = require("../config/db");
 const { successResponse, errorResponse } = require("../utils/apiResponse");
+const { writeLog } = require("../utils/logger");
 
 exports.getAllProducts = async (req, res, next) => {
   try {
@@ -212,6 +213,7 @@ exports.updateProduct = async (req, res, next) => {
       },
     });
 
+    await writeLog({ type:"INFO", action:"Product Updated", category:"product", details:`Product "${updatedProduct.name}" (ID: ${id}) updated — Fields: ${Object.keys(data).join(", ")}`, actor:"Admin" });
     return successResponse(res, updatedProduct, "Product updated successfully.");
   } catch (error) {
     next(error);
@@ -223,6 +225,7 @@ exports.deleteProduct = async (req, res, next) => {
   try {
     const { id } = req.params;
     await prisma.product.delete({ where: { id } });
+    await writeLog({ type:"WARN", action:"Product Deleted", category:"product", details:`Product ID ${id} permanently removed from inventory`, actor:"Admin" });
     return successResponse(res, { id }, "Product deleted successfully.");
   } catch (error) {
     next(error);
