@@ -1,0 +1,19 @@
+services:
+  - type: web
+    name: kids-api
+    runtime: node
+    buildCommand: npm install && npx prisma generate
+    startCommand: npx prisma db push && npm start
+    envVars:
+      - key: PORT
+        value: 5001
+      - key: NODE_ENV
+        value: production
+      - key: JWT_SECRET
+        generateValue: true
+      - key: DATABASE_URL
+        value: file:/data/dev.db
+    disk:
+      name: sqlite-data
+      mountPath: /data
+      sizeGB: 1
